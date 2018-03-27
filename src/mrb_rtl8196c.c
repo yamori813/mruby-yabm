@@ -73,6 +73,75 @@ mrb_value str;
   return str;
 }
 
+int http_connect(int addr, int port, char *header);
+int http_read(char *buf, int len);
+void http_close();
+
+int https_connect(char *host, int addr, int port, char *header);
+int https_read(char *buf, int len);
+void https_close();
+
+static mrb_value mrb_rtl8196c_http(mrb_state *mrb, mrb_value self)
+{
+mrb_value str;
+mrb_value addr, port, header;
+char tmp[512];
+int len;
+
+  mrb_get_args(mrb, "iiS", &addr, &port, &header);
+  str = mrb_str_new_cstr(mrb, "");
+  if (http_connect(mrb_fixnum(addr), mrb_fixnum(port), RSTRING_PTR(header))) {
+    while(1) {
+      len = http_read(tmp, sizeof(tmp) - 1);
+      if (len < 0)
+        break;
+      if (len != 0) {
+        tmp[len] = '\0';
+        mrb_str_cat2(mrb, str, tmp);
+      }
+    }
+    http_close();
+  }
+  return str;
+}
+
+static mrb_value mrb_rtl8196c_https(mrb_state *mrb, mrb_value self)
+{
+mrb_value str;
+mrb_value host, addr, port, header;
+char tmp[512];
+int len;
+
+  mrb_get_args(mrb, "SiiS", &host, &addr, &port, &header);
+  str = mrb_str_new_cstr(mrb, "");
+  if (https_connect(RSTRING_PTR(host), mrb_fixnum(addr), mrb_fixnum(port), RSTRING_PTR(header))) {
+    while(1) {
+      len = https_read(tmp, sizeof(tmp) - 1);
+      if (len < 0)
+        break;
+      if (len != 0) {
+        tmp[len] = '\0';
+        mrb_str_cat2(mrb, str, tmp);
+      }
+    }
+    https_close();
+  }
+  return str;
+}
+
+int lookup(char *host, int *addr);
+
+static mrb_value mrb_rtl8196c_lookup(mrb_state *mrb, mrb_value self)
+{
+mrb_value host;
+int addr;
+
+  mrb_get_args(mrb, "S", &host);
+  lookup(RSTRING_PTR(host), &addr);
+
+  return mrb_fixnum_value(addr);
+}
+
 void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
@@ -81,6 +150,9 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "print", mrb_rtl8196c_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "count", mrb_rtl8196c_count, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "udprecv", mrb_rtl8196c_udprecv, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "http", mrb_rtl8196c_http, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, rtl8196c, "https", mrb_rtl8196c_https, MRB_ARGS_REQ(4));
+  mrb_define_method(mrb, rtl8196c, "lookup", mrb_rtl8196c_lookup, MRB_ARGS_REQ(1));
   DONE;
 }
 
