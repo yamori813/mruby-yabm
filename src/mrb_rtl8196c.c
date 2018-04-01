@@ -14,8 +14,7 @@
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
 typedef struct {
-  char *str;
-  int len;
+  int model;
 } mrb_rtl8196c_data;
 
 static const struct mrb_data_type mrb_rtl8196c_data_type = {
@@ -25,8 +24,7 @@ static const struct mrb_data_type mrb_rtl8196c_data_type = {
 static mrb_value mrb_rtl8196c_init(mrb_state *mrb, mrb_value self)
 {
   mrb_rtl8196c_data *data;
-  char *str;
-  int len;
+  mrb_value model;
 
   data = (mrb_rtl8196c_data *)DATA_PTR(self);
   if (data) {
@@ -35,10 +33,9 @@ static mrb_value mrb_rtl8196c_init(mrb_state *mrb, mrb_value self)
   DATA_TYPE(self) = &mrb_rtl8196c_data_type;
   DATA_PTR(self) = NULL;
 
-  mrb_get_args(mrb, "s", &str, &len);
+  mrb_get_args(mrb, "i", &model);
   data = (mrb_rtl8196c_data *)mrb_malloc(mrb, sizeof(mrb_rtl8196c_data));
-  data->str = str;
-  data->len = len;
+  data->model = mrb_fixnum(model);
   DATA_PTR(self) = data;
 
   return self;
@@ -62,14 +59,31 @@ static mrb_value mrb_rtl8196c_count(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(sys_now());
 }
 
-extern char udpbuff[];
+void rtl_udp_bind(int port);
+int rtl_udp_recv(char *buf, int len);
+
+static mrb_value mrb_rtl8196c_udpbind(mrb_state *mrb, mrb_value self)
+{
+  mrb_value port;
+  mrb_get_args(mrb, "i", &port);
+  rtl_udp_bind(mrb_fixnum(port));
+  return mrb_nil_value();
+}
 
 static mrb_value mrb_rtl8196c_udprecv(mrb_state *mrb, mrb_value self)
 {
 mrb_value str;
+char buff[1024];
+int len;
   
-  str = mrb_str_new_cstr(mrb, udpbuff);
-  udpbuff[0] = '\0';
+  len = rtl_udp_recv(buff, sizeof(buff) - 1);
+  if (len != 0) {
+    buff[len] = 0;
+    str = mrb_str_new_cstr(mrb, buff);
+  } else {
+    str = mrb_str_new_cstr(mrb, "");
+  }
+    
   return str;
 }
 
@@ -146,9 +160,17 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
   rtl8196c = mrb_define_class(mrb, "RTL8196C", mrb->object_class);
+
+  mrb_define_const(mrb, rtl8196c, "RTL8196C_BASE", mrb_fixnum_value(RTL8196C_GENERIC));
+  mrb_define_const(mrb, rtl8196c, "RTL8196C_HOMESPOTCUBE", mrb_fixnum_value(RTL8196C_HOMESPOTCUBE));
+  mrb_define_const(mrb, rtl8196c, "RTL8196C_BBR4HGV2", mrb_fixnum_value(RTL8196C_BBR4HGV2));
+  mrb_define_const(mrb, rtl8196c, "RTL8196C_LANW300NR", mrb_fixnum_value(RTL8196C_LANW300NR));
+  mrb_define_const(mrb, rtl8196c, "RTL8196C_MZKMF300N", mrb_fixnum_value(RTL8196C_MZKMF300N));
+
   mrb_define_method(mrb, rtl8196c, "initialize", mrb_rtl8196c_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "print", mrb_rtl8196c_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "count", mrb_rtl8196c_count, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "udpbind", mrb_rtl8196c_udprecv, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "udprecv", mrb_rtl8196c_udprecv, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "http", mrb_rtl8196c_http, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "https", mrb_rtl8196c_https, MRB_ARGS_REQ(4));
