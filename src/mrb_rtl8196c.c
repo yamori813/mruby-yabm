@@ -161,7 +161,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   struct RClass *rtl8196c;
   rtl8196c = mrb_define_class(mrb, "RTL8196C", mrb->object_class);
 
-  mrb_define_const(mrb, rtl8196c, "RTL8196C_BASE", mrb_fixnum_value(RTL8196C_GENERIC));
+  mrb_define_const(mrb, rtl8196c, "RTL8196C_GENERIC", mrb_fixnum_value(RTL8196C_GENERIC));
   mrb_define_const(mrb, rtl8196c, "RTL8196C_HOMESPOTCUBE", mrb_fixnum_value(RTL8196C_HOMESPOTCUBE));
   mrb_define_const(mrb, rtl8196c, "RTL8196C_BBR4HGV2", mrb_fixnum_value(RTL8196C_BBR4HGV2));
   mrb_define_const(mrb, rtl8196c, "RTL8196C_LANW300NR", mrb_fixnum_value(RTL8196C_LANW300NR));
