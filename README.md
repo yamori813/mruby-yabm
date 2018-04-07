@@ -13,13 +13,8 @@ end
 ```
 ## example
 ```ruby
-p RTL8196C.hi
-#=> "hi!!"
-t = RTL8196C.new "hello"
-p t.hello
-#=> "hello"
-p t.bye
-#=> "hello bye"
+t = RTL8196C.new(RTL8196C_GENERIC)
+t.print("Hello Bear Metal mruby on RTL8196C");
 ```
 
 ## License
