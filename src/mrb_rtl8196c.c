@@ -179,7 +179,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "print", mrb_rtl8196c_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "count", mrb_rtl8196c_count, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "netstat", mrb_rtl8196c_netstat, MRB_ARGS_NONE());
-  mrb_define_method(mrb, rtl8196c, "udpbind", mrb_rtl8196c_udprecv, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, rtl8196c, "udpbind", mrb_rtl8196c_udpbind, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "udprecv", mrb_rtl8196c_udprecv, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "http", mrb_rtl8196c_http, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "https", mrb_rtl8196c_https, MRB_ARGS_REQ(4));
