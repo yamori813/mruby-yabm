@@ -13,6 +13,8 @@
 
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
+#define	MIBBASE		0xbb801000
+
 typedef struct {
   int model;
 } mrb_rtl8196c_data;
@@ -164,16 +166,70 @@ int addr;
   return mrb_fixnum_value(addr);
 }
 
+static mrb_value mrb_rtl8196c_getmib(mrb_state *mrb, mrb_value self)
+{
+  unsigned long *lptr;
+  mrb_value port, dir, type;
+  mrb_get_args(mrb, "iii", &port, &dir, &type);
+
+  lptr = (unsigned long *)(MIBBASE + mrb_fixnum(dir) + 
+    mrb_fixnum(port) * MIB_SIZE + mrb_fixnum(type));
+/* 64 bit not support
+  if ((mrb_fixnum(dir) == MIB_IN && (mrb_fixnum(type) == MIB_IFINOCTETS ||
+    mrb_fixnum(type) == MIB_ETHERSTATSOCTETS)) ||
+    (mrb_fixnum(dir) == MIB_OUT && mrb_fixnum(type) == MIB_IFOUTOCTETS)) {
+  }
+*/
+
+  return mrb_fixnum_value(*lptr);
+}
+
 void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
   rtl8196c = mrb_define_class(mrb, "RTL8196C", mrb->object_class);
 
-  mrb_define_const(mrb, rtl8196c, "RTL8196C_GENERIC", mrb_fixnum_value(RTL8196C_GENERIC));
-  mrb_define_const(mrb, rtl8196c, "RTL8196C_HOMESPOTCUBE", mrb_fixnum_value(RTL8196C_HOMESPOTCUBE));
-  mrb_define_const(mrb, rtl8196c, "RTL8196C_BBR4HGV2", mrb_fixnum_value(RTL8196C_BBR4HGV2));
-  mrb_define_const(mrb, rtl8196c, "RTL8196C_LANW300NR", mrb_fixnum_value(RTL8196C_LANW300NR));
-  mrb_define_const(mrb, rtl8196c, "RTL8196C_MZKMF300N", mrb_fixnum_value(RTL8196C_MZKMF300N));
+  mrb_define_const(mrb, rtl8196c, "MODULE_GENERIC", mrb_fixnum_value(MODULE_GENERIC));
+  mrb_define_const(mrb, rtl8196c, "MODULE_HOMESPOTCUBE", mrb_fixnum_value(MODULE_HOMESPOTCUBE));
+  mrb_define_const(mrb, rtl8196c, "MODULE_BBR4HGV2", mrb_fixnum_value(MODULE_BBR4HGV2));
+  mrb_define_const(mrb, rtl8196c, "MODULE_LANW300NR", mrb_fixnum_value(MODULE_LANW300NR));
+  mrb_define_const(mrb, rtl8196c, "MODULE_MZKMF300N", mrb_fixnum_value(MODULE_MZKMF300N));
+  mrb_define_const(mrb, rtl8196c, "MIB_IN", mrb_fixnum_value(MIB_IN));
+  mrb_define_const(mrb, rtl8196c, "MIB_OUT", mrb_fixnum_value(MIB_OUT));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFINOCTETS", mrb_fixnum_value(MIB_IFINOCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFINUCASTPKTS", mrb_fixnum_value(MIB_IFINUCASTPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSOCTETS", mrb_fixnum_value(MIB_ETHERSTATSOCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSUNDERSIZEPKTS", mrb_fixnum_value(MIB_ETHERSTATSUNDERSIZEPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSFRAGMEMTS", mrb_fixnum_value(MIB_ETHERSTATSFRAGMEMTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSPKTS64OCTETS", mrb_fixnum_value(MIB_ETHERSTATSPKTS64OCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSPKTS65TO127OCTETS", mrb_fixnum_value(MIB_ETHERSTATSPKTS65TO127OCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSPKTS128TO255OCTETS", mrb_fixnum_value(MIB_ETHERSTATSPKTS128TO255OCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSPKTS256TO511OCTETS", mrb_fixnum_value(MIB_ETHERSTATSPKTS256TO511OCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSPKTS512TO1023OCTETS", mrb_fixnum_value(MIB_ETHERSTATSPKTS512TO1023OCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSPKTS1024TO1518OCTETS", mrb_fixnum_value(MIB_ETHERSTATSPKTS1024TO1518OCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSOVERSIZEPKTS", mrb_fixnum_value(MIB_ETHERSTATSOVERSIZEPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSJABBERS", mrb_fixnum_value(MIB_ETHERSTATSJABBERS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSMULTICASTPKTS", mrb_fixnum_value(MIB_ETHERSTATSMULTICASTPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSBROADCASTPKTS", mrb_fixnum_value(MIB_ETHERSTATSBROADCASTPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT1DTPPORTINDISCARDS", mrb_fixnum_value(MIB_DOT1DTPPORTINDISCARDS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSDROPEVENTS", mrb_fixnum_value(MIB_ETHERSTATSDROPEVENTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSFCSERRORS", mrb_fixnum_value(MIB_DOT3STATSFCSERRORS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSSYMBOLERRORS", mrb_fixnum_value(MIB_DOT3STATSSYMBOLERRORS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3CONTROLINUNKNOWNOPCODES", mrb_fixnum_value(MIB_DOT3CONTROLINUNKNOWNOPCODES));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3INPAUSEFRAMES", mrb_fixnum_value(MIB_DOT3INPAUSEFRAMES));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFOUTOCTETS", mrb_fixnum_value(MIB_IFOUTOCTETS));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFOUTUCASTPKTS", mrb_fixnum_value(MIB_IFOUTUCASTPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFOUTMULTICASTPKTS", mrb_fixnum_value(MIB_IFOUTMULTICASTPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFOUTBROADCASTPKTS", mrb_fixnum_value(MIB_IFOUTBROADCASTPKTS));
+  mrb_define_const(mrb, rtl8196c, "MIB_IFOUTDISCARDS", mrb_fixnum_value(MIB_IFOUTDISCARDS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSSINGLECOLLISIONFRAMES", mrb_fixnum_value(MIB_DOT3STATSSINGLECOLLISIONFRAMES));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSMULTIPLECOLLISIONFRAMES", mrb_fixnum_value(MIB_DOT3STATSMULTIPLECOLLISIONFRAMES));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSDEFERREDTRANSMISSIONS", mrb_fixnum_value(MIB_DOT3STATSDEFERREDTRANSMISSIONS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSLATECOLLISIONS", mrb_fixnum_value(MIB_DOT3STATSLATECOLLISIONS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3STATSEXCESSIVECOLLISIONS", mrb_fixnum_value(MIB_DOT3STATSEXCESSIVECOLLISIONS));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT3OUTPAUSEFRAMES", mrb_fixnum_value(MIB_DOT3OUTPAUSEFRAMES));
+  mrb_define_const(mrb, rtl8196c, "MIB_DOT1DBASEPORTDELAYEXCEEDEDDISCARDS", mrb_fixnum_value(MIB_DOT1DBASEPORTDELAYEXCEEDEDDISCARDS));
+  mrb_define_const(mrb, rtl8196c, "MIB_ETHERSTATSCOLLISIONS", mrb_fixnum_value(MIB_ETHERSTATSCOLLISIONS));
 
   mrb_define_method(mrb, rtl8196c, "initialize", mrb_rtl8196c_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "print", mrb_rtl8196c_print, MRB_ARGS_REQ(1));
@@ -184,6 +240,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "http", mrb_rtl8196c_http, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "https", mrb_rtl8196c_https, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, rtl8196c, "lookup", mrb_rtl8196c_lookup, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, rtl8196c, "getmib", mrb_rtl8196c_getmib, MRB_ARGS_REQ(3));
   DONE;
 }
 
