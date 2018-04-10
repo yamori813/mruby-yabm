@@ -61,6 +61,26 @@ static mrb_value mrb_rtl8196c_count(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(sys_now());
 }
 
+void net_start(int, int, int, int);
+void net_startdhcp();
+
+static mrb_value mrb_rtl8196c_netstart(mrb_state *mrb, mrb_value self)
+{
+  mrb_value addr, mask, gw, dns;
+  mrb_get_args(mrb, "iiii", &addr, &mask, &gw, &dns);
+  net_start(mrb_fixnum(addr), mrb_fixnum(mask), mrb_fixnum(gw),
+    mrb_fixnum(dns));
+
+  return mrb_nil_value();
+}
+
+static mrb_value mrb_rtl8196c_netstartdhcp(mrb_state *mrb, mrb_value self)
+{
+
+  net_startdhcp();
+  return mrb_nil_value();
+}
+
 extern int netstat;
 
 static mrb_value mrb_rtl8196c_netstat(mrb_state *mrb, mrb_value self)
@@ -246,6 +266,8 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "initialize", mrb_rtl8196c_init, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "print", mrb_rtl8196c_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "count", mrb_rtl8196c_count, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "netstart", mrb_rtl8196c_netstart, MRB_ARGS_REQ(4));
+  mrb_define_method(mrb, rtl8196c, "netstartdhcp", mrb_rtl8196c_netstart, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "netstat", mrb_rtl8196c_netstat, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "udpbind", mrb_rtl8196c_udpbind, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "udprecv", mrb_rtl8196c_udprecv, MRB_ARGS_NONE());
