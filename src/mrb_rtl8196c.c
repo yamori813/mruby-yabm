@@ -184,6 +184,18 @@ static mrb_value mrb_rtl8196c_getmib(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(*lptr);
 }
 
+int rtl8651_getAsicEthernetPHYReg(unsigned int, unsigned int, unsigned int *);
+
+static mrb_value mrb_rtl8196c_readmdio(mrb_state *mrb, mrb_value self)
+{
+  int data;
+  mrb_value port, reg;
+  mrb_get_args(mrb, "ii", &port, &reg);
+  rtl8651_getAsicEthernetPHYReg(mrb_fixnum(port), mrb_fixnum(reg), &data);
+
+  return mrb_fixnum_value(data);
+}
+
 void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
@@ -241,6 +253,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "https", mrb_rtl8196c_https, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, rtl8196c, "lookup", mrb_rtl8196c_lookup, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "getmib", mrb_rtl8196c_getmib, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, rtl8196c, "readmdio", mrb_rtl8196c_readmdio, MRB_ARGS_REQ(2));
   DONE;
 }
 
