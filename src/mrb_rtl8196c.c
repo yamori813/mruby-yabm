@@ -8,7 +8,9 @@
 
 #include "mruby.h"
 #include "mruby/data.h"
-#include <mruby/string.h>
+#include "mruby/array.h"
+#include "mruby/string.h"
+
 #include "mrb_rtl8196c.h"
 
 #define DONE mrb_gc_arena_restore(mrb, 0);
@@ -234,6 +236,24 @@ int len;
   return str;
 }
 
+int i2c_write(unsigned char ch, int start, int stop);
+static mrb_value mrb_rtl8196c_i2cwrites(mrb_state *mrb, mrb_value self)
+{
+  mrb_int addr;
+  mrb_value arr;
+  int len;
+  int i;
+
+  mrb_get_args(mrb, "iA", &addr, &arr);
+  len = RARRAY_LEN( arr );
+  i2c_write(addr, 1, 0);
+  for (i = 0;i < len - 1; ++i)
+    i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0);
+  i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 1);
+
+  return mrb_fixnum_value(0);
+}
+
 void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
@@ -295,6 +315,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "getmib", mrb_rtl8196c_getmib, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "readmdio", mrb_rtl8196c_readmdio, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, rtl8196c, "readuart", mrb_rtl8196c_readuart, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "i2cwrites", mrb_rtl8196c_i2cwrites, MRB_ARGS_REQ(2));
   DONE;
 }
 
