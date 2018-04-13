@@ -216,6 +216,24 @@ static mrb_value mrb_rtl8196c_readmdio(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(data);
 }
 
+int getrxdata(char *buff, int len);
+static mrb_value mrb_rtl8196c_readuart(mrb_state *mrb, mrb_value self)
+{
+mrb_value str;
+char buff[1024];
+int len;
+  
+  len = getrxdata(buff, sizeof(buff) - 1);
+  if (len != 0) {
+    buff[len] = 0;
+    str = mrb_str_new_cstr(mrb, buff);
+  } else {
+    str = mrb_str_new_cstr(mrb, "");
+  }
+    
+  return str;
+}
+
 void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
@@ -276,6 +294,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "lookup", mrb_rtl8196c_lookup, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "getmib", mrb_rtl8196c_getmib, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "readmdio", mrb_rtl8196c_readmdio, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, rtl8196c, "readuart", mrb_rtl8196c_readuart, MRB_ARGS_NONE());
   DONE;
 }
 
