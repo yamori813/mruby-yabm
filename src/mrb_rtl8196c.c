@@ -237,6 +237,43 @@ int len;
 }
 
 int i2c_write(unsigned char ch, int start, int stop);
+unsigned char i2c_read(int stop);
+void delay_ms(int);
+
+static mrb_value mrb_rtl8196c_i2cread(mrb_state *mrb, mrb_value self)
+{
+  int res;
+  mrb_int addr, reg;
+
+  res = 0;
+  mrb_get_args(mrb, "ii", &addr, &reg);
+  if(i2c_write((addr << 1) | 0, 1, 0)) {
+    if(i2c_write(reg, 0, 1)) {
+      delay_ms(10);
+      if(i2c_write((addr << 1) | 1, 1, 0)) 
+           res = i2c_read(1);
+     }
+  }
+  return mrb_fixnum_value(res);
+}
+
+static mrb_value mrb_rtl8196c_i2cwrite(mrb_state *mrb, mrb_value self)
+{
+  int res;
+  mrb_int addr, reg, val;
+
+  res = 0;
+  mrb_get_args(mrb, "iii", &addr, &reg, &val);
+  if(i2c_write((addr << 1) | 0, 1, 0)) {
+    if(i2c_write(reg, 0, 0)) {
+      if(i2c_write(val, 0, 1)) {
+        res = 1;
+      }
+    }
+  }
+  return mrb_fixnum_value(res);
+}
+
 static mrb_value mrb_rtl8196c_i2cwrites(mrb_state *mrb, mrb_value self)
 {
   mrb_int addr;
@@ -246,7 +283,7 @@ static mrb_value mrb_rtl8196c_i2cwrites(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "iA", &addr, &arr);
   len = RARRAY_LEN( arr );
-  i2c_write(addr, 1, 0);
+  i2c_write((addr << 1) | 0, 1, 0);
   for (i = 0;i < len - 1; ++i)
     i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0);
   i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 1);
@@ -315,6 +352,8 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "getmib", mrb_rtl8196c_getmib, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "readmdio", mrb_rtl8196c_readmdio, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, rtl8196c, "readuart", mrb_rtl8196c_readuart, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "i2cread", mrb_rtl8196c_i2cread, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, rtl8196c, "i2cwrite", mrb_rtl8196c_i2cwrite, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "i2cwrites", mrb_rtl8196c_i2cwrites, MRB_ARGS_REQ(2));
   DONE;
 }
