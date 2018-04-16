@@ -14,7 +14,7 @@ end
 ## example
 ```ruby
 t = RTL8196C.new(RTL8196C_GENERIC)
-t.print("Hello Bear Metal mruby on RTL8196C");
+t.print "Hello Bear Metal mruby on RTL8196C"
 ```
 
 ## License
