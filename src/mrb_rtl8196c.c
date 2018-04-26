@@ -312,6 +312,67 @@ static mrb_value mrb_rtl8196c_i2cwrites(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+void gpio_setsel(unsigned long sel, unsigned long selmask,
+unsigned long sel2, unsigned long selmask2);
+unsigned long gpio_getctl();
+void gpio_setctl(unsigned long val);
+unsigned long gpio_getdir();
+void gpio_setdir(unsigned long val);
+unsigned long gpio_getdat();
+void gpio_setdat(unsigned long val);
+
+static mrb_value mrb_rtl8196c_gpiosetsel(mrb_state *mrb, mrb_value self)
+{
+  mrb_int sel, selmask, sel2, selmask2;
+  mrb_get_args(mrb, "iiii", &sel, &selmask, &sel2, &selmask2);
+
+  gpio_setsel(sel, selmask, sel2, selmask2);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_rtl8196c_gpiogetctl(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(gpio_getctl());
+}
+
+static mrb_value mrb_rtl8196c_gpiosetctl(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+  gpio_setctl(val);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_rtl8196c_gpiogetdir(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(gpio_getdir());
+}
+
+static mrb_value mrb_rtl8196c_gpiosetdir(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+  gpio_setdir(val);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_rtl8196c_gpiogetdat(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(gpio_getdat());
+}
+
+static mrb_value mrb_rtl8196c_gpiosetdat(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+  gpio_setdat(val);
+
+  return mrb_fixnum_value(0);
+}
+
 void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
 {
   struct RClass *rtl8196c;
@@ -377,6 +438,14 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "i2cread", mrb_rtl8196c_i2cread, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, rtl8196c, "i2cwrite", mrb_rtl8196c_i2cwrite, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "i2cwrites", mrb_rtl8196c_i2cwrites, MRB_ARGS_REQ(2));
+
+  mrb_define_method(mrb, rtl8196c, "gpiosetsel", mrb_rtl8196c_gpiosetsel, MRB_ARGS_REQ(4));
+  mrb_define_method(mrb, rtl8196c, "gpiogetctl", mrb_rtl8196c_gpiogetctl, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "gpiosetctl", mrb_rtl8196c_gpiosetctl, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, rtl8196c, "gpiogetdir", mrb_rtl8196c_gpiogetdir, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "gpiosetdir", mrb_rtl8196c_gpiosetdir, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, rtl8196c, "gpiogetdat", mrb_rtl8196c_gpiogetdat, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "gpiosetdat", mrb_rtl8196c_gpiosetdat, MRB_ARGS_REQ(1));
   DONE;
 }
 
