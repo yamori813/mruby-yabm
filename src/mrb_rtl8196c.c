@@ -91,8 +91,16 @@ static mrb_value mrb_rtl8196c_netstat(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(netstat);
 }
 
+void rtl_udp_init();
 void rtl_udp_bind(int port);
 int rtl_udp_recv(char *buf, int len);
+void rtl_udp_send(int addr, int port, char *buf, int len);
+
+static mrb_value mrb_rtl8196c_udpinit(mrb_state *mrb, mrb_value self)
+{
+  rtl_udp_init();
+  return mrb_nil_value();
+}
 
 static mrb_value mrb_rtl8196c_udpbind(mrb_state *mrb, mrb_value self)
 {
@@ -117,6 +125,15 @@ int len;
   }
     
   return str;
+}
+
+static mrb_value mrb_rtl8196c_udpsend(mrb_state *mrb, mrb_value self)
+{
+  mrb_value buff;
+  mrb_int addr, port, len;
+  mrb_get_args(mrb, "iiSi", &addr, &port, &buff, &len);
+  rtl_udp_send(addr, port, RSTRING_PTR(buff), len);
+  return mrb_nil_value();
 }
 
 int http_connect(int addr, int port, char *header);
@@ -426,8 +443,10 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "netstart", mrb_rtl8196c_netstart, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, rtl8196c, "netstartdhcp", mrb_rtl8196c_netstart, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "netstat", mrb_rtl8196c_netstat, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "udpinit", mrb_rtl8196c_udpinit, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "udpbind", mrb_rtl8196c_udpbind, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "udprecv", mrb_rtl8196c_udprecv, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "udpsend", mrb_rtl8196c_udpsend, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, rtl8196c, "http", mrb_rtl8196c_http, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, rtl8196c, "https", mrb_rtl8196c_https, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, rtl8196c, "lookup", mrb_rtl8196c_lookup, MRB_ARGS_REQ(1));
