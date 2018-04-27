@@ -84,11 +84,18 @@ static mrb_value mrb_rtl8196c_netstartdhcp(mrb_state *mrb, mrb_value self)
 }
 
 extern int netstat;
+int getmyaddress();
 
 static mrb_value mrb_rtl8196c_netstat(mrb_state *mrb, mrb_value self)
 {
 
   return mrb_fixnum_value(netstat);
+}
+
+static mrb_value mrb_rtl8196c_getaddress(mrb_state *mrb, mrb_value self)
+{
+
+  return mrb_fixnum_value(getmyaddress());
 }
 
 void rtl_udp_init();
@@ -443,6 +450,7 @@ void mrb_mruby_rtlbm_rtl8196c_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, rtl8196c, "netstart", mrb_rtl8196c_netstart, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, rtl8196c, "netstartdhcp", mrb_rtl8196c_netstartdhcp, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "netstat", mrb_rtl8196c_netstat, MRB_ARGS_NONE());
+  mrb_define_method(mrb, rtl8196c, "getaddress", mrb_rtl8196c_getaddress, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "udpinit", mrb_rtl8196c_udpinit, MRB_ARGS_NONE());
   mrb_define_method(mrb, rtl8196c, "udpbind", mrb_rtl8196c_udpbind, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, rtl8196c, "udprecv", mrb_rtl8196c_udprecv, MRB_ARGS_NONE());
