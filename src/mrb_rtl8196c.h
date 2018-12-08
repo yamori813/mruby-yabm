@@ -7,7 +7,7 @@
 #ifndef MRB_RTL8196C_H
 #define MRB_RTL8196C_H
 
-void mrb_mruby_rtl8196c_gem_init(mrb_state *mrb);
+void mrb_mruby_yabm_gem_init(mrb_state *mrb);
 
 #define	MODULE_GENERIC				0
 #define	MODULE_HOMESPOTCUBE			1
