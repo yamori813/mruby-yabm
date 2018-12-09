@@ -25,6 +25,64 @@ static const struct mrb_data_type mrb_yabm_data_type = {
   "mrb_yabm_data", mrb_free,
 };
 
+static uint32_t mrb_yabm_strtoip(mrb_state *mrb, mrb_value str)
+{
+  char *cstr;
+  uint32_t ip;
+  int pos, val;
+
+  ip = 0;
+  pos = 0;
+  val = 0;
+
+  cstr = mrb_str_to_cstr(mrb, str);
+  while (*cstr) {
+    if (*cstr == '.') {
+      ip |= val << (8 * (3 - pos));
+      val = 0;
+      ++pos;
+    } else {
+      val *= 10;
+      val += *cstr - '0';
+    }
+    ++cstr;
+  }
+  ip |= val;
+  return ip;
+}
+
+static mrb_value mrb_yabm_iptostr(mrb_state *mrb, uint32_t ip)
+{
+  char addr[16];
+  int i , val, c, div;
+
+  c = 0;
+  for(i = 0; i < 4; ++i ) {
+    val = (ip >> (8 * (3 - i))) & 0xff;
+    div = val / 100;
+    if (div != 0) {
+      addr[c] = '0' + div;
+      val -= 100 * div;
+      ++c;
+    }
+    div = val / 10;
+    if (div != 0) {
+      addr[c] = '0' + div;
+      val -= 10 * div;
+      ++c;
+    }
+    div = val % 10;
+    addr[c] = '0' + div;
+    ++c;
+    if(i != 3) {
+      addr[c] = '.';
+      ++c;
+    }
+   }
+   addr[c] = '\0';
+   return mrb_str_new_cstr(mrb, addr);
+}
+
 static mrb_value mrb_yabm_init(mrb_state *mrb, mrb_value self)
 {
   mrb_yabm_data *data;
@@ -63,15 +121,15 @@ static mrb_value mrb_yabm_count(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(sys_now());
 }
 
-void net_start(int, int, int, int);
+void net_start(uint32_t, uint32_t, uint32_t, uint32_t);
 void net_startdhcp();
 
 static mrb_value mrb_yabm_netstart(mrb_state *mrb, mrb_value self)
 {
   mrb_value addr, mask, gw, dns;
-  mrb_get_args(mrb, "iiii", &addr, &mask, &gw, &dns);
-  net_start(mrb_fixnum(addr), mrb_fixnum(mask), mrb_fixnum(gw),
-    mrb_fixnum(dns));
+  mrb_get_args(mrb, "SSSS", &addr, &mask, &gw, &dns);
+  net_start(mrb_yabm_strtoip(mrb, addr), mrb_yabm_strtoip(mrb, mask),
+    mrb_yabm_strtoip(mrb, gw), mrb_yabm_strtoip(mrb, dns));
 
   return mrb_nil_value();
 }
@@ -136,14 +194,14 @@ int len;
 
 static mrb_value mrb_yabm_udpsend(mrb_state *mrb, mrb_value self)
 {
-  mrb_value buff;
-  mrb_int addr, port, len;
-  mrb_get_args(mrb, "iiSi", &addr, &port, &buff, &len);
-  rtl_udp_send(addr, port, RSTRING_PTR(buff), len);
+  mrb_value buff, addr;
+  mrb_int port, len;
+  mrb_get_args(mrb, "SiSi", &addr, &port, &buff, &len);
+  rtl_udp_send(mrb_yabm_strtoip(mrb, addr), port, RSTRING_PTR(buff), len);
   return mrb_nil_value();
 }
 
-int http_connect(int addr, int port, char *header);
+int http_connect(uint32_t addr, int port, char *header);
 int http_read(char *buf, int len);
 void http_close();
 
@@ -158,9 +216,10 @@ mrb_value addr, port, header;
 char tmp[512];
 int len;
 
-  mrb_get_args(mrb, "iiS", &addr, &port, &header);
+  mrb_get_args(mrb, "SiS", &addr, &port, &header);
   str = mrb_str_new_cstr(mrb, "");
-  if (http_connect(mrb_fixnum(addr), mrb_fixnum(port), RSTRING_PTR(header))) {
+  if (http_connect(mrb_yabm_strtoip(mrb, addr), mrb_fixnum(port),
+    RSTRING_PTR(header))) {
     while(1) {
       len = http_read(tmp, sizeof(tmp) - 1);
       if (len < 0)
@@ -182,9 +241,9 @@ mrb_value host, addr, port, header;
 char tmp[512];
 int len;
 
-  mrb_get_args(mrb, "SiiS", &host, &addr, &port, &header);
+  mrb_get_args(mrb, "SSiS", &host, &addr, &port, &header);
   str = mrb_str_new_cstr(mrb, "");
-  if (https_connect(RSTRING_PTR(host), mrb_fixnum(addr), mrb_fixnum(port), RSTRING_PTR(header))) {
+  if (https_connect(RSTRING_PTR(host), mrb_yabm_strtoip(mrb, addr), mrb_fixnum(port), RSTRING_PTR(header))) {
     while(1) {
       len = https_read(tmp, sizeof(tmp) - 1);
       if (len < 0)
@@ -199,7 +258,7 @@ int len;
   return str;
 }
 
-int lookup(char *host, int *addr);
+int lookup(char *host, uint32_t *addr);
 
 static mrb_value mrb_yabm_lookup(mrb_state *mrb, mrb_value self)
 {
@@ -209,17 +268,17 @@ int addr;
   mrb_get_args(mrb, "S", &host);
   lookup(RSTRING_PTR(host), &addr);
 
-  return mrb_fixnum_value(addr);
+  return mrb_yabm_iptostr(mrb, addr);
 }
 
-void sntp(int addr);
+void sntp(uint32_t addr);
 
 static mrb_value mrb_yabm_sntp(mrb_state *mrb, mrb_value self)
 {
-int addr;
+mrb_value addr;
 
-  mrb_get_args(mrb, "i", &addr);
-  sntp(addr);
+  mrb_get_args(mrb, "S", &addr);
+  sntp(mrb_yabm_strtoip(mrb, addr));
 
   return mrb_nil_value();
 }
