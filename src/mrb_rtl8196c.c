@@ -6,6 +6,8 @@
 ** See Copyright Notice in LICENSE
 */
 
+#include <string.h>
+
 #include "mruby.h"
 #include "mruby/data.h"
 #include "mruby/array.h"
@@ -142,7 +144,7 @@ static mrb_value mrb_yabm_netstartdhcp(mrb_state *mrb, mrb_value self)
 }
 
 extern int netstat;
-int getmyaddress();
+uint32_t getmyaddress();
 
 static mrb_value mrb_yabm_netstat(mrb_state *mrb, mrb_value self)
 {
@@ -153,7 +155,7 @@ static mrb_value mrb_yabm_netstat(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_yabm_getaddress(mrb_state *mrb, mrb_value self)
 {
 
-  return mrb_fixnum_value(getmyaddress());
+  return mrb_yabm_iptostr(mrb, getmyaddress());
 }
 
 void rtl_udp_init();
@@ -209,6 +211,30 @@ int https_connect(char *host, int addr, int port, char *header);
 int https_read(char *buf, int len);
 void https_close();
 
+int comphttp(char *ptr, int len)
+{
+char *sep;
+char *clen;
+char *h = "Content-Length: ";
+int l;
+
+  sep = strnstr(ptr, "\r\n\r\n", len);
+  if (sep != NULL) {
+    clen = strnstr(ptr, h, len);
+    if(clen != NULL) {
+      clen += strlen(h);
+      l = 0;
+      while(*clen >= '0' && *clen <= '9') {
+        l = l * 10 + (*clen - '0');
+        ++clen;
+      }
+      if(len == sep - ptr + l + 4)
+        return 1;
+    }
+  }
+  return 0;
+}
+
 static mrb_value mrb_yabm_http(mrb_state *mrb, mrb_value self)
 {
 mrb_value str;
@@ -228,6 +254,8 @@ int len;
         tmp[len] = '\0';
         mrb_str_cat2(mrb, str, tmp);
       }
+      if(comphttp(RSTRING_PTR(str), RSTRING_LEN(str)))
+        break;
     }
     http_close();
   }
