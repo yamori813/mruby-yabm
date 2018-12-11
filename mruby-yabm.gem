@@ -1,6 +1,6 @@
 name: mruby-yabm
-description: RTL8196C class
+description: Yet Another Bare Metal class
 author: Hiroki Mori
-website: https://github.com/yamori813/mruby-rtlbm-rtl8196c
+website: https://github.com/yamori813/mruby-yabm
 protocol: git
-repository: https://github.com/yamori813/mruby-rtlbm-rtl8196c.git
+repository: https://github.com/yamori813/mruby-yabm.git
