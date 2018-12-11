@@ -13,7 +13,7 @@
 #include "mruby/array.h"
 #include "mruby/string.h"
 
-#include "mrb_rtl8196c.h"
+#include "mrb_yabm.h"
 
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
