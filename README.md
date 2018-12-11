@@ -1,5 +1,5 @@
 # mruby-yabm   [![Build Status](https://travis-ci.org/yamori813/mruby-yabm.svg?branch=master)](https://travis-ci.org/yamori813/mruby-yabm)
-RTL8196C class
+Yet Another Bare Metal class
 ## install by mrbgems
 - add conf.gem line to `build_config.rb`
 
