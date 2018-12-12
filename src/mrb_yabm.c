@@ -211,6 +211,7 @@ int https_connect(char *host, int addr, int port, char *header);
 int https_read(char *buf, int len);
 void https_close();
 
+#if NOTUSE
 int comphttp(char *ptr, int len)
 {
 char *sep;
@@ -234,6 +235,7 @@ int l;
   }
   return 0;
 }
+#endif
 
 static mrb_value mrb_yabm_http(mrb_state *mrb, mrb_value self)
 {
@@ -254,8 +256,10 @@ int len;
         tmp[len] = '\0';
         mrb_str_cat2(mrb, str, tmp);
       }
+#if NOTUSR
       if(comphttp(RSTRING_PTR(str), RSTRING_LEN(str)))
         break;
+#endif
     }
     http_close();
   }
