@@ -10,10 +10,9 @@
 void mrb_mruby_yabm_gem_init(mrb_state *mrb);
 
 #define	MODULE_GENERIC				0
-#define	MODULE_HOMESPOTCUBE			1
-#define	MODULE_BBR4HGV2				2
-#define	MODULE_LANW300NR			3
-#define	MODULE_MZKMF300N			4
+#define	MODULE_RTL8196C				1
+#define	MODULE_BCM4712				2
+#define	MODULE_RTL8196E				3
 
 #define	MIB_IN					0x100
 #define	MIB_OUT					0x800
