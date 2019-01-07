@@ -515,6 +515,9 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_const(mrb, yabm, "MODULE_RTL8196C", mrb_fixnum_value(MODULE_RTL8196C));
   mrb_define_const(mrb, yabm, "MODULE_BCM4712", mrb_fixnum_value(MODULE_BCM4712));
   mrb_define_const(mrb, yabm, "MODULE_RTL8196E", mrb_fixnum_value(MODULE_RTL8196E));
+  mrb_define_const(mrb, yabm, "MODULE_BCM5350", mrb_fixnum_value(MODULE_BCM5350));
+  mrb_define_const(mrb, yabm, "MODULE_BCM5352", mrb_fixnum_value(MODULE_BCM5352));
+  mrb_define_const(mrb, yabm, "MODULE_BCM5354", mrb_fixnum_value(MODULE_BCM5354));
 
 #if defined(YABM_REALTEK)
   mrb_define_const(mrb, yabm, "MIB_IN", mrb_fixnum_value(MIB_IN));
