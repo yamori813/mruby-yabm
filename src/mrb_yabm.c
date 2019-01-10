@@ -20,7 +20,7 @@
 #define	MIBBASE		0xbb801000
 
 typedef struct {
-  int model;
+  int arch;
 } mrb_yabm_data;
 
 static const struct mrb_data_type mrb_yabm_data_type = {
@@ -85,10 +85,11 @@ static mrb_value mrb_yabm_iptostr(mrb_state *mrb, uint32_t ip)
    return mrb_str_new_cstr(mrb, addr);
 }
 
+int getarch();
+
 static mrb_value mrb_yabm_init(mrb_state *mrb, mrb_value self)
 {
   mrb_yabm_data *data;
-  mrb_value model;
 
   data = (mrb_yabm_data *)DATA_PTR(self);
   if (data) {
@@ -97,12 +98,18 @@ static mrb_value mrb_yabm_init(mrb_state *mrb, mrb_value self)
   DATA_TYPE(self) = &mrb_yabm_data_type;
   DATA_PTR(self) = NULL;
 
-  mrb_get_args(mrb, "i", &model);
   data = (mrb_yabm_data *)mrb_malloc(mrb, sizeof(mrb_yabm_data));
-  data->model = mrb_fixnum(model);
+  data->arch = getarch();
   DATA_PTR(self) = data;
 
   return self;
+}
+
+static mrb_value mrb_yabm_getarch(mrb_state *mrb, mrb_value self)
+{
+  mrb_yabm_data *data = DATA_PTR(self);
+
+  return mrb_fixnum_value(data->arch);
 }
 
 void print(char *);
@@ -511,7 +518,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   struct RClass *yabm;
   yabm = mrb_define_class(mrb, "YABM", mrb->object_class);
 
-  mrb_define_const(mrb, yabm, "MODULE_GENERIC", mrb_fixnum_value(MODULE_GENERIC));
+  mrb_define_const(mrb, yabm, "MODULE_UNKNOWN", mrb_fixnum_value(MODULE_UNKNOWN));
   mrb_define_const(mrb, yabm, "MODULE_RTL8196C", mrb_fixnum_value(MODULE_RTL8196C));
   mrb_define_const(mrb, yabm, "MODULE_BCM4712", mrb_fixnum_value(MODULE_BCM4712));
   mrb_define_const(mrb, yabm, "MODULE_RTL8196E", mrb_fixnum_value(MODULE_RTL8196E));
@@ -558,7 +565,8 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_const(mrb, yabm, "MIB_ETHERSTATSCOLLISIONS", mrb_fixnum_value(MIB_ETHERSTATSCOLLISIONS));
 #endif
 
-  mrb_define_method(mrb, yabm, "initialize", mrb_yabm_init, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "initialize", mrb_yabm_init, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "count", mrb_yabm_count, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "netstart", mrb_yabm_netstart, MRB_ARGS_REQ(4));

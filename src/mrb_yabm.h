@@ -9,7 +9,7 @@
 
 void mrb_mruby_yabm_gem_init(mrb_state *mrb);
 
-#define	MODULE_GENERIC				0
+#define	MODULE_UNKNOWN				0
 #define	MODULE_RTL8196C				1
 #define	MODULE_BCM4712				2
 #define	MODULE_RTL8196E				3
