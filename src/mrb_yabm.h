@@ -16,6 +16,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb);
 #define	MODULE_BCM5350				4
 #define	MODULE_BCM5352				5
 #define	MODULE_BCM5354				6
+#define	MODULE_ADM5120				7
 
 #define	MIB_IN					0x100
 #define	MIB_OUT					0x800
