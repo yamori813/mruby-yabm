@@ -370,6 +370,7 @@ int len;
     
   return str;
 }
+#endif /* YABM_REALTEK */
 
 void i2c_init(int scl, int sda);
 int i2c_write(unsigned char ch, int start, int stop);
@@ -446,7 +447,6 @@ static mrb_value mrb_yabm_i2cwrites(mrb_state *mrb, mrb_value self)
 
   return mrb_fixnum_value(0);
 }
-#endif
 
 #if defined(YABM_REALTEK)
 void gpio_setsel(unsigned long sel, unsigned long selmask,
@@ -586,11 +586,13 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "getmib", mrb_yabm_getmib, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "readmdio", mrb_yabm_readmdio, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "readuart", mrb_yabm_readuart, MRB_ARGS_NONE());
+#endif
   mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "i2cread", mrb_yabm_i2cread, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "i2cwrite", mrb_yabm_i2cwrite, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "i2cwrites", mrb_yabm_i2cwrites, MRB_ARGS_REQ(2));
 
+#if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "gpiosetsel", mrb_yabm_gpiosetsel, MRB_ARGS_REQ(4));
 #endif
   mrb_define_method(mrb, yabm, "gpiogetctl", mrb_yabm_gpiogetctl, MRB_ARGS_NONE());
