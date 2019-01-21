@@ -13,7 +13,7 @@ end
 ```
 ## example
 ```ruby
-t = YABM.new(YABM::RTL8196C_GENERIC)
+t = YABM.new
 t.print "Hello Bear Metal mruby"
 ```
 
