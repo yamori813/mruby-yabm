@@ -471,6 +471,20 @@ static mrb_value mrb_yabm_gpiosetsel(mrb_state *mrb, mrb_value self)
 }
 #endif
 
+#if defined(YABM_ADMTEK)
+void gpio_setled(int port, unsigned long val);
+
+static mrb_value mrb_yabm_gpiosetled(mrb_state *mrb, mrb_value self)
+{
+  mrb_int port, val;
+  mrb_get_args(mrb, "ii", &port, &val);
+
+  gpio_setled(port, val);
+
+  return mrb_fixnum_value(0);
+}
+#endif
+
 static mrb_value mrb_yabm_gpiogetctl(mrb_state *mrb, mrb_value self)
 {
   return mrb_fixnum_value(gpio_getctl());
@@ -526,6 +540,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_const(mrb, yabm, "MODULE_BCM5352", mrb_fixnum_value(MODULE_BCM5352));
   mrb_define_const(mrb, yabm, "MODULE_BCM5354", mrb_fixnum_value(MODULE_BCM5354));
   mrb_define_const(mrb, yabm, "MODULE_ADM5120", mrb_fixnum_value(MODULE_ADM5120));
+  mrb_define_const(mrb, yabm, "MODULE_ADM5120P", mrb_fixnum_value(MODULE_ADM5120P));
 
 #if defined(YABM_REALTEK)
   mrb_define_const(mrb, yabm, "MIB_IN", mrb_fixnum_value(MIB_IN));
@@ -594,6 +609,9 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "gpiosetsel", mrb_yabm_gpiosetsel, MRB_ARGS_REQ(4));
+#endif
+#if defined(YABM_ADMTEK)
+  mrb_define_method(mrb, yabm, "gpiosetled", mrb_yabm_gpiosetled, MRB_ARGS_REQ(2));
 #endif
   mrb_define_method(mrb, yabm, "gpiogetctl", mrb_yabm_gpiogetctl, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "gpiosetctl", mrb_yabm_gpiosetctl, MRB_ARGS_REQ(1));
