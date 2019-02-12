@@ -340,19 +340,23 @@ static mrb_value mrb_yabm_getmib(mrb_state *mrb, mrb_value self)
 
   return mrb_fixnum_value(*lptr);
 }
+#endif /* YABM_REALTEK */
 
-int rtl8651_getAsicEthernetPHYReg(unsigned int, unsigned int, unsigned int *);
+#if defined(YABM_REALTEK) || defined(YABM_ADMTEK)
+int readmdio(unsigned int addr, unsigned int reg, unsigned int *dat);
 
 static mrb_value mrb_yabm_readmdio(mrb_state *mrb, mrb_value self)
 {
   int data;
   mrb_value port, reg;
   mrb_get_args(mrb, "ii", &port, &reg);
-  rtl8651_getAsicEthernetPHYReg(mrb_fixnum(port), mrb_fixnum(reg), &data);
+  readmdio(mrb_fixnum(port), mrb_fixnum(reg), &data);
 
   return mrb_fixnum_value(data);
 }
+#endif /* YABM_REALTEK || YABM_ADMTEK */
 
+#if defined(YABM_REALTEK)
 int getrxdata(char *buff, int len);
 static mrb_value mrb_yabm_readuart(mrb_state *mrb, mrb_value self)
 {
@@ -599,7 +603,11 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "sntp", mrb_yabm_sntp, MRB_ARGS_REQ(1));
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "getmib", mrb_yabm_getmib, MRB_ARGS_REQ(3));
+#endif
+#if defined(YABM_REALTEK) || defined(YABM_ADMTEK)
   mrb_define_method(mrb, yabm, "readmdio", mrb_yabm_readmdio, MRB_ARGS_REQ(2));
+#endif
+#if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "readuart", mrb_yabm_readuart, MRB_ARGS_NONE());
 #endif
   mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(2));
