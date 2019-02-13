@@ -342,6 +342,15 @@ static mrb_value mrb_yabm_getmib(mrb_state *mrb, mrb_value self)
 }
 #endif /* YABM_REALTEK */
 
+#if defined(YABM_ADMTEK)
+unsigned long physt();
+
+static mrb_value mrb_yabm_getphyst(mrb_state *mrb, mrb_value self)
+{
+  return mrb_fixnum_value(physt());
+}
+#endif /* YABM_ADMTEK */
+
 #if defined(YABM_REALTEK) || defined(YABM_ADMTEK)
 int readmdio(unsigned int addr, unsigned int reg, unsigned int *dat);
 
@@ -603,6 +612,9 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "sntp", mrb_yabm_sntp, MRB_ARGS_REQ(1));
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "getmib", mrb_yabm_getmib, MRB_ARGS_REQ(3));
+#endif
+#if defined(YABM_ADMTEK)
+  mrb_define_method(mrb, yabm, "getphyst", mrb_yabm_getphyst, MRB_ARGS_NONE());
 #endif
 #if defined(YABM_REALTEK) || defined(YABM_ADMTEK)
   mrb_define_method(mrb, yabm, "readmdio", mrb_yabm_readmdio, MRB_ARGS_REQ(2));
