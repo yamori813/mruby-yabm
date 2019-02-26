@@ -19,6 +19,8 @@
 
 #define	MIBBASE		0xbb801000
 
+#if !defined(YABM_DUMMY)
+
 typedef struct {
   int arch;
 } mrb_yabm_data;
@@ -647,3 +649,4 @@ void mrb_mruby_yabm_gem_final(mrb_state *mrb)
 {
 }
 
+#endif /* YABM_DUMMY */
