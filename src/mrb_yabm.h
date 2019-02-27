@@ -19,6 +19,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb);
 #define	MODULE_ADM5120				7
 #define	MODULE_ADM5120P				8
 #define	MODULE_KS8695				9
+#define	MODULE_RTL8198				10
 
 #define	MODULE_DUMMY				100
 
