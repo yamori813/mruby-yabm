@@ -1,5 +1,5 @@
 /*
-** mrb_yabm.c - RTL8196C class
+** mrb_yabm.c - Yet Another Bare Metal class
 **
 ** Copyright (c) Hiroki Mori 2018
 **

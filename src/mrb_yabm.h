@@ -1,5 +1,5 @@
 /*
-** mrb_rtl8196c.h - RTL8196C class
+** mrb_yabm.h - Yet Another Bare Metal class
 **
 ** See Copyright Notice in LICENSE
 */
