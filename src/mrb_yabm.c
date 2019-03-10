@@ -542,6 +542,35 @@ static mrb_value mrb_yabm_gpiosetdat(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+#if defined(YABM_KENDIN)
+void watchdog_start(int);
+void watchdog_reset();
+void watchdog_stop();
+
+static mrb_value mrb_yabm_watchdogstart(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+  watchdog_start(val);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_yabm_watchdogreset(mrb_state *mrb, mrb_value self)
+{
+  watchdog_reset();
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_yabm_watchdogstop(mrb_state *mrb, mrb_value self)
+{
+  watchdog_stop();
+
+  return mrb_fixnum_value(0);
+}
+#endif
+
 void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 {
   struct RClass *yabm;
@@ -643,6 +672,11 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "gpiosetdir", mrb_yabm_gpiosetdir, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "gpiogetdat", mrb_yabm_gpiogetdat, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "gpiosetdat", mrb_yabm_gpiosetdat, MRB_ARGS_REQ(1));
+#if defined(YABM_KENDIN)
+  mrb_define_method(mrb, yabm, "watchdogstart", mrb_yabm_watchdogstart, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "watchdogreset", mrb_yabm_watchdogreset, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "watchdogstop", mrb_yabm_watchdogstop, MRB_ARGS_NONE());
+#endif
   DONE;
 }
 
