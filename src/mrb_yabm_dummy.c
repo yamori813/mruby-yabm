@@ -135,6 +135,21 @@ static mrb_value mrb_yabm_count(mrb_state *mrb, mrb_value self)
     time_now.tv_usec / 1000);
 }
 
+static mrb_value mrb_yabm_watchdogstart(mrb_state *mrb, mrb_value self)
+{
+  return mrb_nil_value();
+}
+
+static mrb_value mrb_yabm_watchdogreset(mrb_state *mrb, mrb_value self)
+{
+  return mrb_nil_value();
+}
+
+static mrb_value mrb_yabm_watchdogstop(mrb_state *mrb, mrb_value self)
+{
+  return mrb_nil_value();
+}
+
 void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 {
   struct RClass *yabm;
@@ -156,6 +171,9 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "count", mrb_yabm_count, MRB_ARGS_NONE());
 
+  mrb_define_method(mrb, yabm, "watchdogstart", mrb_yabm_watchdogstart, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "watchdogreset", mrb_yabm_watchdogreset, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "watchdogstop", mrb_yabm_watchdogstop, MRB_ARGS_NONE());
   DONE;
 }
 
