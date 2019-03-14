@@ -163,6 +163,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 
   mrb_define_method(mrb, yabm, "netstart", mrb_yabm_dummy, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "netstartdhcp", mrb_yabm_dummy, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "sntp", mrb_yabm_dummy, MRB_ARGS_REQ(1));
 
   mrb_define_method(mrb, yabm, "gpiosetsel", mrb_yabm_dummy, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "gpiosetled", mrb_yabm_dummy, MRB_ARGS_REQ(2));
