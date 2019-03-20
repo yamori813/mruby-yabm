@@ -307,9 +307,10 @@ mrb_value host;
 int addr;
 
   mrb_get_args(mrb, "S", &host);
-  lookup(RSTRING_PTR(host), &addr);
-
-  return mrb_yabm_iptostr(mrb, addr);
+  if (lookup(RSTRING_PTR(host), &addr))
+    return mrb_yabm_iptostr(mrb, addr);
+  else
+    return mrb_str_new_cstr(mrb, "");
 }
 
 void sntp(uint32_t addr);
