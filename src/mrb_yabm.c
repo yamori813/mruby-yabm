@@ -59,18 +59,21 @@ static mrb_value mrb_yabm_iptostr(mrb_state *mrb, uint32_t ip)
 {
   char addr[16];
   int i , val, c, div;
+  int han;
 
   c = 0;
   for(i = 0; i < 4; ++i ) {
+    han = 0;
     val = (ip >> (8 * (3 - i))) & 0xff;
     div = val / 100;
     if (div != 0) {
       addr[c] = '0' + div;
       val -= 100 * div;
       ++c;
+      han = 1;
     }
     div = val / 10;
-    if (div != 0) {
+    if (han == 1 || div != 0) {
       addr[c] = '0' + div;
       val -= 10 * div;
       ++c;
