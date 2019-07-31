@@ -140,6 +140,11 @@ static mrb_value mrb_yabm_dummy(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+static mrb_value mrb_yabm_dummystr(mrb_state *mrb, mrb_value self)
+{
+  return mrb_str_new_cstr(mrb, "");
+}
+
 void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 {
   struct RClass *yabm;
@@ -163,7 +168,8 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 
   mrb_define_method(mrb, yabm, "netstart", mrb_yabm_dummy, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "netstartdhcp", mrb_yabm_dummy, MRB_ARGS_NONE());
-  mrb_define_method(mrb, yabm, "getaddress", mrb_yabm_dummy, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "getaddress", mrb_yabm_dummystr, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "lookup", mrb_yabm_dummystr, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "sntp", mrb_yabm_dummy, MRB_ARGS_REQ(1));
 
   mrb_define_method(mrb, yabm, "gpiosetsel", mrb_yabm_dummy, MRB_ARGS_REQ(4));
