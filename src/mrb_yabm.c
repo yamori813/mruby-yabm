@@ -456,15 +456,38 @@ static mrb_value mrb_yabm_i2cwrites(mrb_state *mrb, mrb_value self)
   mrb_value arr;
   int len;
   int i;
+  int rep;
 
-  mrb_get_args(mrb, "iA", &addr, &arr);
+  mrb_get_args(mrb, "iAi", &addr, &arr, &rep);
   len = RARRAY_LEN( arr );
   i2c_write((addr << 1) | 0, 1, 0);
   for (i = 0;i < len - 1; ++i)
     i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0);
-  i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 1);
+  i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), rep ? 0 : 1, 1);
 
   return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_yabm_i2creads(mrb_state *mrb, mrb_value self)
+{
+  mrb_int addr;
+  mrb_value arr;
+  int len;
+  int i;
+  int val;
+
+  mrb_get_args(mrb, "ii", &addr, &len);
+  if(i2c_write((addr << 1) | 1, 1, 0)) {
+    arr = mrb_ary_new(mrb);
+    for (i = 0;i < len; ++i) {
+      val = i2c_read(i == len - 1 ? 1 : 0);
+      mrb_ary_push(mrb, arr, mrb_fixnum_value(val));
+    }
+  } else {
+    return mrb_nil_value();
+  }
+
+  return arr;
 }
 
 #if defined(YABM_REALTEK)
@@ -662,7 +685,8 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "i2cread", mrb_yabm_i2cread, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "i2cwrite", mrb_yabm_i2cwrite, MRB_ARGS_REQ(3));
-  mrb_define_method(mrb, yabm, "i2cwrites", mrb_yabm_i2cwrites, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, yabm, "i2cwrites", mrb_yabm_i2cwrites, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, yabm, "i2creads", mrb_yabm_i2creads, MRB_ARGS_REQ(2));
 
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "gpiosetsel", mrb_yabm_gpiosetsel, MRB_ARGS_REQ(4));
