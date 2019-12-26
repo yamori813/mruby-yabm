@@ -391,7 +391,7 @@ int len;
 }
 #endif /* YABM_REALTEK */
 
-void i2c_init(int scl, int sda);
+void i2c_init(int scl, int sda, int u);
 int i2c_write(unsigned char ch, int start, int stop);
 unsigned char i2c_read(int stop);
 void delay_ms(int);
@@ -400,11 +400,11 @@ void xprintf (const char* fmt, ...);
 static mrb_value mrb_yabm_i2cinit(mrb_state *mrb, mrb_value self)
 {
   int res, i;
-  mrb_int scl, sda;
-  mrb_get_args(mrb, "ii", &scl, &sda);
+  mrb_int scl, sda, u;
+  mrb_get_args(mrb, "iii", &scl, &sda, &u);
 
   res = 0;
-  i2c_init(scl, sda);
+  i2c_init(scl, sda, u);
   for(i = 0; i < 0x80; ++i) {
     if(i2c_write(i << 1, 1, 1)) {
       res = 1;
@@ -682,7 +682,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "readuart", mrb_yabm_readuart, MRB_ARGS_NONE());
 #endif
-  mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "i2cread", mrb_yabm_i2cread, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "i2cwrite", mrb_yabm_i2cwrite, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "i2cwrites", mrb_yabm_i2cwrites, MRB_ARGS_REQ(3));
