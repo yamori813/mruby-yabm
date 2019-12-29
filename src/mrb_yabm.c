@@ -416,6 +416,20 @@ static mrb_value mrb_yabm_i2cinit(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(res);
 }
 
+static mrb_value mrb_yabm_i2cchk(mrb_state *mrb, mrb_value self)
+{
+  int res;
+  mrb_int addr;
+  mrb_get_args(mrb, "i", &addr);
+
+ if(i2c_write(addr << 1, 1, 1))
+   res = 1;
+  else
+   res = 0;
+
+  return mrb_fixnum_value(res);
+}
+
 static mrb_value mrb_yabm_i2cread(mrb_state *mrb, mrb_value self)
 {
   int res;
@@ -683,6 +697,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "readuart", mrb_yabm_readuart, MRB_ARGS_NONE());
 #endif
   mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, yabm, "i2cchk", mrb_yabm_i2cchk, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "i2cread", mrb_yabm_i2cread, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "i2cwrite", mrb_yabm_i2cwrite, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "i2cwrites", mrb_yabm_i2cwrites, MRB_ARGS_REQ(3));
