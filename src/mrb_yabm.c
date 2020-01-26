@@ -471,15 +471,22 @@ static mrb_value mrb_yabm_i2cwrites(mrb_state *mrb, mrb_value self)
   int len;
   int i;
   int rep;
+  int res;
 
+  res = 0;
   mrb_get_args(mrb, "iAi", &addr, &arr, &rep);
   len = RARRAY_LEN( arr );
-  i2c_write((addr << 1) | 0, 1, 0);
-  for (i = 0;i < len - 1; ++i)
-    i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0);
-  i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), rep ? 0 : 1, 1);
+  if (i2c_write((addr << 1) | 0, 1, 0)) {
+    for (i = 0;i < len - 1; ++i) {
+      if (!i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0)) {
+        break;
+      }
+    }
+    if (i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), rep ? 0 : 1, 1))
+      res = 1;
+  }
 
-  return mrb_fixnum_value(0);
+  return mrb_fixnum_value(res);
 }
 
 static mrb_value mrb_yabm_i2creads(mrb_state *mrb, mrb_value self)
