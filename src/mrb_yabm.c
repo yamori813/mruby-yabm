@@ -127,6 +127,28 @@ static mrb_value mrb_yabm_print(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+#if defined(YABM_BROADCOM)
+void print2(char *);
+
+static mrb_value mrb_yabm_print2(mrb_state *mrb, mrb_value self)
+{
+  mrb_value val;
+  mrb_get_args(mrb, "S", &val);
+  print2(RSTRING_PTR(val));
+  return mrb_nil_value();
+}
+
+void setbaud(int baud, int port);
+
+static mrb_value mrb_yabm_setbaud(mrb_state *mrb, mrb_value self)
+{
+  mrb_value baud, port;
+  mrb_get_args(mrb, "ii", &baud, &port);
+  setbaud(mrb_fixnum(baud), mrb_fixnum(port));
+  return mrb_nil_value();
+}
+#endif
+
 int sys_now();
 
 static mrb_value mrb_yabm_count(mrb_state *mrb, mrb_value self)
@@ -678,6 +700,10 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "initialize", mrb_yabm_init, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1));
+#if defined(YABM_BROADCOM)
+  mrb_define_method(mrb, yabm, "print2", mrb_yabm_print2, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "setbaud", mrb_yabm_setbaud, MRB_ARGS_REQ(2));
+#endif
   mrb_define_method(mrb, yabm, "count", mrb_yabm_count, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "netstart", mrb_yabm_netstart, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "netstartdhcp", mrb_yabm_netstartdhcp, MRB_ARGS_NONE());
