@@ -7,6 +7,7 @@
 */
 
 #include <string.h>
+#include <sys/time.h>
 
 #include "mruby.h"
 #include "mruby/data.h"
@@ -155,6 +156,12 @@ static mrb_value mrb_yabm_count(mrb_state *mrb, mrb_value self)
 {
 
   return mrb_fixnum_value(sys_now());
+}
+
+static mrb_value mrb_yabm_now(mrb_state *mrb, mrb_value self)
+{
+
+  return mrb_fixnum_value(time(NULL));
 }
 
 void net_start(uint32_t, uint32_t, uint32_t, uint32_t);
@@ -705,6 +712,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "setbaud", mrb_yabm_setbaud, MRB_ARGS_REQ(2));
 #endif
   mrb_define_method(mrb, yabm, "count", mrb_yabm_count, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "now", mrb_yabm_now, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "netstart", mrb_yabm_netstart, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "netstartdhcp", mrb_yabm_netstartdhcp, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "netstat", mrb_yabm_netstat, MRB_ARGS_NONE());
