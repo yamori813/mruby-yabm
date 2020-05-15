@@ -135,6 +135,12 @@ static mrb_value mrb_yabm_count(mrb_state *mrb, mrb_value self)
     time_now.tv_usec / 1000);
 }
 
+static mrb_value mrb_yabm_now(mrb_state *mrb, mrb_value self)
+{
+
+  return mrb_fixnum_value(time(NULL));
+}
+
 static mrb_value mrb_yabm_dummy(mrb_state *mrb, mrb_value self)
 {
   return mrb_nil_value();
@@ -165,6 +171,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "count", mrb_yabm_count, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "now", mrb_yabm_now, MRB_ARGS_NONE());
 
   mrb_define_method(mrb, yabm, "netstart", mrb_yabm_dummy, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "netstartdhcp", mrb_yabm_dummy, MRB_ARGS_NONE());
