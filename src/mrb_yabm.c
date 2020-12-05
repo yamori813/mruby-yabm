@@ -143,9 +143,9 @@ void setbaud(int baud, int port);
 
 static mrb_value mrb_yabm_setbaud(mrb_state *mrb, mrb_value self)
 {
-  mrb_value baud, port;
+  mrb_int baud, port;
   mrb_get_args(mrb, "ii", &baud, &port);
-  setbaud(mrb_fixnum(baud), mrb_fixnum(port));
+  setbaud(baud, port);
   return mrb_nil_value();
 }
 #endif
@@ -212,9 +212,9 @@ static mrb_value mrb_yabm_udpinit(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_yabm_udpbind(mrb_state *mrb, mrb_value self)
 {
-  mrb_value port;
+  mrb_int port;
   mrb_get_args(mrb, "i", &port);
-  rtl_udp_bind(mrb_fixnum(port));
+  rtl_udp_bind(port);
   return mrb_nil_value();
 }
 
@@ -281,13 +281,14 @@ int l;
 static mrb_value mrb_yabm_http(mrb_state *mrb, mrb_value self)
 {
 mrb_value str;
-mrb_value addr, port, header;
+mrb_value addr, header;
+mrb_int port;
 char tmp[512];
 int len;
 
   mrb_get_args(mrb, "SiS", &addr, &port, &header);
   str = mrb_str_new_cstr(mrb, "");
-  if (http_connect(mrb_yabm_strtoip(mrb, addr), mrb_fixnum(port),
+  if (http_connect(mrb_yabm_strtoip(mrb, addr), port,
     RSTRING_PTR(header))) {
     while(1) {
       len = http_read(tmp, sizeof(tmp) - 1);
@@ -310,13 +311,14 @@ int len;
 static mrb_value mrb_yabm_https(mrb_state *mrb, mrb_value self)
 {
 mrb_value str;
-mrb_value host, addr, port, header;
+mrb_value host, addr, header;
+mrb_int port;
 char tmp[512];
 int len;
 
   mrb_get_args(mrb, "SSiS", &host, &addr, &port, &header);
   str = mrb_str_new_cstr(mrb, "");
-  if (https_connect(RSTRING_PTR(host), mrb_yabm_strtoip(mrb, addr), mrb_fixnum(port), RSTRING_PTR(header))) {
+  if (https_connect(RSTRING_PTR(host), mrb_yabm_strtoip(mrb, addr), port, RSTRING_PTR(header))) {
     while(1) {
       len = https_read(tmp, sizeof(tmp) - 1);
       if (len < 0)
@@ -361,11 +363,11 @@ mrb_value addr;
 static mrb_value mrb_yabm_getmib(mrb_state *mrb, mrb_value self)
 {
   unsigned long *lptr;
-  mrb_value port, dir, type;
+  mrb_int port, dir, type;
   mrb_get_args(mrb, "iii", &port, &dir, &type);
 
-  lptr = (unsigned long *)(MIBBASE + mrb_fixnum(dir) + 
-    mrb_fixnum(port) * MIB_SIZE + mrb_fixnum(type));
+  lptr = (unsigned long *)(MIBBASE + dir + 
+    port * MIB_SIZE + type);
 /* 64 bit not support
   if ((mrb_fixnum(dir) == MIB_IN && (mrb_fixnum(type) == MIB_IFINOCTETS ||
     mrb_fixnum(type) == MIB_ETHERSTATSOCTETS)) ||
@@ -392,9 +394,9 @@ int readmdio(unsigned int addr, unsigned int reg, unsigned int *dat);
 static mrb_value mrb_yabm_readmdio(mrb_state *mrb, mrb_value self)
 {
   int data;
-  mrb_value port, reg;
+  mrb_int port, reg;
   mrb_get_args(mrb, "ii", &port, &reg);
-  readmdio(mrb_fixnum(port), mrb_fixnum(reg), &data);
+  readmdio(port, reg, &data);
 
   return mrb_fixnum_value(data);
 }
@@ -495,11 +497,10 @@ static mrb_value mrb_yabm_i2cwrite(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_yabm_i2cwrites(mrb_state *mrb, mrb_value self)
 {
-  mrb_int addr;
+  mrb_int addr, rep;
   mrb_value arr;
   int len;
   int i;
-  int rep;
   int res;
 
   res = 0;
@@ -520,9 +521,8 @@ static mrb_value mrb_yabm_i2cwrites(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_yabm_i2creads(mrb_state *mrb, mrb_value self)
 {
-  mrb_int addr;
+  mrb_int addr, len;
   mrb_value arr;
-  int len;
   int i;
   int val;
 
