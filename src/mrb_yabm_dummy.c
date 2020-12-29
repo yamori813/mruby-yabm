@@ -14,6 +14,7 @@
 #include "mruby/data.h"
 #include "mruby/array.h"
 #include "mruby/string.h"
+#include "mruby/class.h"
 
 #include "mrb_yabm.h"
 
@@ -155,6 +156,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 {
   struct RClass *yabm;
   yabm = mrb_define_class(mrb, "YABM", mrb->object_class);
+  MRB_SET_INSTANCE_TT(yabm, MRB_TT_DATA);
 
   mrb_define_const(mrb, yabm, "MODULE_UNKNOWN", mrb_fixnum_value(MODULE_UNKNOWN));
   mrb_define_const(mrb, yabm, "MODULE_RTL8196C", mrb_fixnum_value(MODULE_RTL8196C));
