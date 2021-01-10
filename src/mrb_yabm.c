@@ -21,6 +21,8 @@
 
 #define	MIBBASE		0xbb801000
 
+void xprintf (const char* fmt, ...);
+
 #if !defined(YABM_DUMMY)
 
 typedef struct {
@@ -57,6 +59,35 @@ static uint32_t mrb_yabm_strtoip(mrb_state *mrb, mrb_value str)
   return ip;
 }
 
+int addr16(char *ptr)
+{
+  int i, r, n;
+
+  r = 0;
+  for(i = 0; i < 4; ++i) {
+    if(ptr[i] <= '9') {
+      n = ptr[i] - '0';
+    } else {
+      n = ptr[i] - 'a' + 10;
+    }
+    r = (r << 4) | n;
+  }
+  return r;
+
+}
+
+
+static void mrb_yabm_strtoip6(mrb_state *mrb, mrb_value str, int *addr)
+{
+  char *cstr;
+  int i;
+
+  cstr = mrb_str_to_cstr(mrb, str);
+  for (i = 0; i < 8; ++i) {
+    addr[i] = addr16(cstr + i * 5);
+  }
+}
+
 static mrb_value mrb_yabm_iptostr(mrb_state *mrb, uint32_t ip)
 {
   char addr[16];
@@ -90,6 +121,41 @@ static mrb_value mrb_yabm_iptostr(mrb_state *mrb, uint32_t ip)
    }
    addr[c] = '\0';
    return mrb_str_new_cstr(mrb, addr);
+}
+
+static void addhexstr(int addr, char *buf)
+{
+int num;
+int i;
+
+  for(i = 12; i >= 0; i -= 4) {
+    num = (addr >> i) & 0xf;
+    if(num < 10) {
+      *buf = '0' + num;
+    } else {
+      *buf = 'a' + num - 10;
+    }
+    ++buf;
+  }
+}
+
+static mrb_value mrb_yabm_ip6tostr(mrb_state *mrb, uint32_t *ip)
+{
+  int i, c;
+  char addr[48];
+
+  c = 0;
+  for(i = 0; i < 8; ++i) {
+    addhexstr(ip[i], &addr[c]);
+    c += 4;
+    if (i != 7) {
+      addr[c] = ':';
+      ++c;
+    }
+  }
+  addr[c] = '\0';
+
+  return mrb_str_new_cstr(mrb, addr);
 }
 
 int getarch();
@@ -334,7 +400,7 @@ int len;
   return str;
 }
 
-int lookup(char *host, uint32_t *addr);
+int lookup(char *host, uint32_t *addr, int type);
 
 static mrb_value mrb_yabm_lookup(mrb_state *mrb, mrb_value self)
 {
@@ -342,20 +408,41 @@ mrb_value host;
 int addr;
 
   mrb_get_args(mrb, "S", &host);
-  if (lookup(RSTRING_PTR(host), &addr))
+  if (lookup(RSTRING_PTR(host), &addr, 0))
     return mrb_yabm_iptostr(mrb, addr);
   else
     return mrb_str_new_cstr(mrb, "");
 }
 
-void sntp(uint32_t addr);
+static mrb_value mrb_yabm_lookup6(mrb_state *mrb, mrb_value self)
+{
+mrb_value host;
+int addr[8];
+
+  mrb_get_args(mrb, "S", &host);
+  if (lookup(RSTRING_PTR(host), addr, 1))
+    return mrb_yabm_ip6tostr(mrb, addr);
+  else
+    return mrb_str_new_cstr(mrb, "");
+}
+
+void sntp(uint32_t *addr, int type);
 
 static mrb_value mrb_yabm_sntp(mrb_state *mrb, mrb_value self)
 {
 mrb_value addr;
+int ip[8];
+char *cstr;
 
   mrb_get_args(mrb, "S", &addr);
-  sntp(mrb_yabm_strtoip(mrb, addr));
+  cstr = mrb_str_to_cstr(mrb, addr);
+  if (strlen(cstr) == 39) {
+    mrb_yabm_strtoip6(mrb, addr, ip);
+    sntp(ip, 1);
+  } else {
+    ip[0] = mrb_yabm_strtoip(mrb, addr);
+    sntp(ip, 0);
+  }
 
   return mrb_nil_value();
 }
@@ -427,7 +514,6 @@ void i2c_init(int scl, int sda, int u);
 int i2c_write(unsigned char ch, int start, int stop);
 unsigned char i2c_read(int stop);
 void delay_ms(int);
-void xprintf (const char* fmt, ...);
 
 static mrb_value mrb_yabm_i2cinit(mrb_state *mrb, mrb_value self)
 {
@@ -726,6 +812,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "http", mrb_yabm_http, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "https", mrb_yabm_https, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "lookup", mrb_yabm_lookup, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "lookup6", mrb_yabm_lookup6, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "sntp", mrb_yabm_sntp, MRB_ARGS_REQ(1));
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "getmib", mrb_yabm_getmib, MRB_ARGS_REQ(3));
