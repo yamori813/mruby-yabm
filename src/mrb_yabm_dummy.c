@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include "mruby.h"
 #include "mruby/data.h"
