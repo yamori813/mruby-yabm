@@ -1,4 +1,5 @@
-# mruby-yabm   [![Build Status](https://travis-ci.org/yamori813/mruby-yabm.svg?branch=master)](https://travis-ci.org/yamori813/mruby-yabm)
+# mruby-yabm    [![build](https://github.com/yamori813/mruby-yabm/actions/workflows/ci.yml/badge.svg)](https://github.com/yamori813/mruby-yabm/actions/workflows/ci.yml)
+
 Yet Another Bare Metal class
 ## install by mrbgems
 - add conf.gem line to `build_config.rb`
