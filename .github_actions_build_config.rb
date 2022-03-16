@@ -82,6 +82,6 @@ end
 MRuby::Build.new('yabm-dummy') do |conf|
   cc.defines << %w(MRB_WITHOUT_FLOAT)
   cc.defines << %w(YABM_DUMMY)
-  conf.gem :github => 'yamori813/mruby-yabm'
+  conf.gem '../'
   conf.gem :github => 'yamori813/mruby-simplehttp'
 end
