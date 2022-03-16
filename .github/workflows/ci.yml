@@ -2,7 +2,7 @@ name: build
 on:
   push:
     branches:
-      - main
+      - master
   schedule:
     - cron: '30 10 * * 1'
 
