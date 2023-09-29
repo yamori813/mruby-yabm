@@ -747,6 +747,15 @@ static mrb_value mrb_yabm_watchdogstop(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_yabm_msleep(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+  delay_ms(val);
+
+  return mrb_fixnum_value(0);
+}
+
 void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 {
   struct RClass *yabm;
@@ -862,6 +871,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "watchdogstart", mrb_yabm_watchdogstart, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "watchdogreset", mrb_yabm_watchdogreset, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "watchdogstop", mrb_yabm_watchdogstop, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "msleep", mrb_yabm_msleep, MRB_ARGS_REQ(1));
   DONE;
 }
 

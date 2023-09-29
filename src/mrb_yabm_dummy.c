@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
+#include <sys/time.h>
 
 #include "mruby.h"
 #include "mruby/data.h"
@@ -152,6 +152,15 @@ static mrb_value mrb_yabm_dummystr(mrb_state *mrb, mrb_value self)
   return mrb_str_new_cstr(mrb, "");
 }
 
+static mrb_value mrb_yabm_msleep(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+  usleep(val*1000);
+
+  return mrb_fixnum_value(0);
+}
+
 void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 {
   struct RClass *yabm;
@@ -193,6 +202,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "watchdogstart", mrb_yabm_dummy, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "watchdogreset", mrb_yabm_dummy, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "watchdogstop", mrb_yabm_dummy, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "msleep", mrb_yabm_msleep, MRB_ARGS_REQ(1));
   DONE;
 }
 
