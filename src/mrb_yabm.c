@@ -564,38 +564,88 @@ static mrb_value mrb_yabm_i2cchk(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_yabm_i2cread(mrb_state *mrb, mrb_value self)
 {
-  int res;
-  mrb_int addr, reg;
+  int i, size, val, err;
+  mrb_int addr, len;
+  mrb_value arg, arr, res;
 
-  res = 0;
-  mrb_get_args(mrb, "ii", &addr, &reg);
-  if(i2c_write((addr << 1) | 0, 1, 0)) {
-    if(i2c_write(reg, 0, 1)) {
-      delay_ms(10);
-      if(i2c_write((addr << 1) | 1, 1, 0)) 
-           res = i2c_read(1);
-     }
+  err = 0;
+  mrb_get_args(mrb, "ii|o", &addr, &len, &arg);
+  if (mrb_get_argc(mrb) == 3) {
+    if (mrb_type(arg) == MRB_TT_INTEGER) {
+      arr = mrb_ary_new(mrb);
+      mrb_ary_push(mrb, arr, mrb_fixnum_value(mrb_integer(arg)));
+    } else {
+      arr = arg;
+    }
+    size = RARRAY_LEN( arr );
+    if (i2c_write((addr << 1) | 0, 1, 0)) {
+      for (i = 0;i < size - 1; ++i) {
+        if (!i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0)) {
+          err = 1;
+          break;
+        }
+      }
+      i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ),  0, 1);
+    } else {
+      err = 1;
+    }
   }
-  return mrb_fixnum_value(res);
+  delay_ms(10);
+  if(err == 0 && i2c_write((addr << 1) | 1, 1, 0)) {
+    if (len == 1) {
+      res = mrb_fixnum_value(i2c_read(1));
+    } else {
+      res = mrb_ary_new(mrb);
+      for (i = 0;i < len; ++i) {
+        val = i2c_read(i == len - 1 ? 1 : 0);
+        mrb_ary_push(mrb, res, mrb_fixnum_value(val));
+      }
+    }
+  } else {
+    err = 1;
+  }
+
+  if (err)
+    return mrb_nil_value();
+  else
+    return res;
 }
 
 static mrb_value mrb_yabm_i2cwrite(mrb_state *mrb, mrb_value self)
 {
-  int res;
+  int res, len, i;
   mrb_int addr, reg, val;
+  mrb_value arr;
 
   res = 0;
-  mrb_get_args(mrb, "iii", &addr, &reg, &val);
-  if(i2c_write((addr << 1) | 0, 1, 0)) {
-    if(i2c_write(reg, 0, 0)) {
-      if(i2c_write(val, 0, 1)) {
-        res = 1;
+  if (mrb_get_argc(mrb) == 3) {
+    mrb_get_args(mrb, "ii|i", &addr, &reg, &val);
+    if(i2c_write((addr << 1) | 0, 1, 0)) {
+      if(i2c_write(reg, 0, 0)) {
+        if(i2c_write(val, 0, 1)) {
+          res = 1;
+        }
       }
+    }
+  } else {
+    mrb_get_args(mrb, "iA", &addr, &arr);
+    len = RARRAY_LEN( arr );
+    if (i2c_write((addr << 1) | 0, 1, 0)) {
+      for (i = 0;i < len - 1; ++i) {
+        if (!i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 0)) {
+          break;
+        }
+        ++res;
+      }
+      if (i == len - 1 &&
+        i2c_write(mrb_fixnum( mrb_ary_ref( mrb, arr, i ) ), 0, 1))
+        ++res;
     }
   }
   return mrb_fixnum_value(res);
 }
 
+#if 0
 static mrb_value mrb_yabm_i2cwrites(mrb_state *mrb, mrb_value self)
 {
   mrb_int addr, rep;
@@ -640,6 +690,7 @@ static mrb_value mrb_yabm_i2creads(mrb_state *mrb, mrb_value self)
 
   return arr;
 }
+#endif
 
 #if defined(YABM_REALTEK)
 void gpio_setsel(unsigned long sel, unsigned long selmask,
@@ -851,10 +902,12 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 #endif
   mrb_define_method(mrb, yabm, "i2cinit", mrb_yabm_i2cinit, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "i2cchk", mrb_yabm_i2cchk, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, yabm, "i2cread", mrb_yabm_i2cread, MRB_ARGS_REQ(2));
-  mrb_define_method(mrb, yabm, "i2cwrite", mrb_yabm_i2cwrite, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, yabm, "i2cread", mrb_yabm_i2cread, MRB_ARGS_ARG(2, 1));
+  mrb_define_method(mrb, yabm, "i2cwrite", mrb_yabm_i2cwrite, MRB_ARGS_ARG(2, 1));
+#if 0
   mrb_define_method(mrb, yabm, "i2cwrites", mrb_yabm_i2cwrites, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "i2creads", mrb_yabm_i2creads, MRB_ARGS_REQ(2));
+#endif
 
 #if defined(YABM_REALTEK)
   mrb_define_method(mrb, yabm, "gpiosetsel", mrb_yabm_gpiosetsel, MRB_ARGS_REQ(4));
