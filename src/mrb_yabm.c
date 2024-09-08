@@ -213,6 +213,25 @@ static mrb_value mrb_yabm_print(mrb_state *mrb, mrb_value self)
 }
 
 #if defined(YABM_BROADCOM)
+int havech(int);
+int getch(int);
+
+static mrb_value mrb_yabm_havech(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+
+  return mrb_fixnum_value(havech(val));
+}
+
+static mrb_value mrb_yabm_getch(mrb_state *mrb, mrb_value self)
+{
+  mrb_int val;
+  mrb_get_args(mrb, "i", &val);
+
+  return mrb_fixnum_value(getch(val));
+}
+
 void print2(char *);
 
 static mrb_value mrb_yabm_print2(mrb_state *mrb, mrb_value self)
@@ -870,6 +889,8 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1));
 #if defined(YABM_BROADCOM)
+  mrb_define_method(mrb, yabm, "havech", mrb_yabm_havech, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "getch", mrb_yabm_getch, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "print2", mrb_yabm_print2, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "setbaud", mrb_yabm_setbaud, MRB_ARGS_REQ(2));
 #endif
