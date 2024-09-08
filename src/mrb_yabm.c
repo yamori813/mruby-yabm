@@ -203,11 +203,20 @@ static mrb_value mrb_yabm_getarch(mrb_state *mrb, mrb_value self)
 }
 
 void print(char *);
+#if defined(YABM_BROADCOM)
+void print2(char *);
+#endif
 
 static mrb_value mrb_yabm_print(mrb_state *mrb, mrb_value self)
 {
   mrb_value val;
-  mrb_get_args(mrb, "S", &val);
+  mrb_int port;
+  int n = mrb_get_args(mrb, "S|i", &val, &port);
+#if defined(YABM_BROADCOM)
+  if (n == 2 && port == 1) {
+    print2(RSTRING_PTR(val));
+  } else
+#endif
   print(RSTRING_PTR(val));
   return mrb_nil_value();
 }
@@ -218,28 +227,18 @@ int getch(int);
 
 static mrb_value mrb_yabm_havech(mrb_state *mrb, mrb_value self)
 {
-  mrb_int val;
-  mrb_get_args(mrb, "i", &val);
+  mrb_int port;
+  mrb_get_args(mrb, "i", &port);
 
-  return mrb_fixnum_value(havech(val));
+  return mrb_fixnum_value(havech(port));
 }
 
 static mrb_value mrb_yabm_getch(mrb_state *mrb, mrb_value self)
 {
-  mrb_int val;
-  mrb_get_args(mrb, "i", &val);
+  mrb_int port;
+  mrb_get_args(mrb, "i", &port);
 
-  return mrb_fixnum_value(getch(val));
-}
-
-void print2(char *);
-
-static mrb_value mrb_yabm_print2(mrb_state *mrb, mrb_value self)
-{
-  mrb_value val;
-  mrb_get_args(mrb, "S", &val);
-  print2(RSTRING_PTR(val));
-  return mrb_nil_value();
+  return mrb_fixnum_value(getch(port));
 }
 
 void setbaud(int baud, int port);
@@ -887,11 +886,10 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 
   mrb_define_method(mrb, yabm, "initialize", mrb_yabm_init, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
-  mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1, 1));
 #if defined(YABM_BROADCOM)
   mrb_define_method(mrb, yabm, "havech", mrb_yabm_havech, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "getch", mrb_yabm_getch, MRB_ARGS_REQ(1));
-  mrb_define_method(mrb, yabm, "print2", mrb_yabm_print2, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "setbaud", mrb_yabm_setbaud, MRB_ARGS_REQ(2));
 #endif
   mrb_define_method(mrb, yabm, "count", mrb_yabm_count, MRB_ARGS_NONE());
