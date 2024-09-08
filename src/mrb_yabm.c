@@ -886,7 +886,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
 
   mrb_define_method(mrb, yabm, "initialize", mrb_yabm_init, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
-  mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_REQ(1, 1));
+  mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_ARG(1, 1));
 #if defined(YABM_BROADCOM)
   mrb_define_method(mrb, yabm, "havech", mrb_yabm_havech, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "getch", mrb_yabm_getch, MRB_ARGS_REQ(1));
