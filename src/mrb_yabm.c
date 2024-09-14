@@ -203,7 +203,7 @@ static mrb_value mrb_yabm_getarch(mrb_state *mrb, mrb_value self)
 }
 
 void print(char *);
-#if defined(YABM_BROADCOM)
+#if defined(YABM_BROADCOM) || defined(YABM_ADMTEK)
 void print2(char *);
 #endif
 
@@ -212,7 +212,7 @@ static mrb_value mrb_yabm_print(mrb_state *mrb, mrb_value self)
   mrb_value val;
   mrb_int port;
   int n = mrb_get_args(mrb, "S|i", &val, &port);
-#if defined(YABM_BROADCOM)
+#if defined(YABM_BROADCOM) || defined(YABM_ADMTEK)
   if (n == 2 && port == 1) {
     print2(RSTRING_PTR(val));
   } else
@@ -221,7 +221,7 @@ static mrb_value mrb_yabm_print(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
-#if defined(YABM_BROADCOM)
+#if defined(YABM_BROADCOM) || defined(YABM_ADMTEK)
 int havech(int);
 int getch(int);
 
@@ -887,7 +887,7 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "initialize", mrb_yabm_init, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "getarch", mrb_yabm_getarch, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "print", mrb_yabm_print, MRB_ARGS_ARG(1, 1));
-#if defined(YABM_BROADCOM)
+#if defined(YABM_BROADCOM) || defined(YABM_ADMTEK)
   mrb_define_method(mrb, yabm, "havech", mrb_yabm_havech, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "getch", mrb_yabm_getch, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "setbaud", mrb_yabm_setbaud, MRB_ARGS_REQ(2));
