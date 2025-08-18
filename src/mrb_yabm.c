@@ -320,6 +320,33 @@ static mrb_value mrb_yabm_udpbind(mrb_state *mrb, mrb_value self)
   return mrb_nil_value();
 }
 
+void httpsvr_init();
+void httpsvr_bind(int port);
+void httpsvr_setres(char *buff, int len);
+
+static mrb_value mrb_yabm_httpsvrinit(mrb_state *mrb, mrb_value self)
+{
+  httpsvr_init();
+  return mrb_nil_value();
+}
+
+static mrb_value mrb_yabm_httpsvrbind(mrb_state *mrb, mrb_value self)
+{
+  mrb_int port;
+  mrb_get_args(mrb, "i", &port);
+  httpsvr_bind(port);
+  return mrb_nil_value();
+}
+
+static mrb_value mrb_yabm_httpsvrsetres(mrb_state *mrb, mrb_value self)
+{
+  mrb_value buff;
+  mrb_int len;
+  mrb_get_args(mrb, "Si", &buff, &len);
+  httpsvr_setres(RSTRING_PTR(buff), len);
+  return mrb_nil_value();
+}
+
 static mrb_value mrb_yabm_udprecv(mrb_state *mrb, mrb_value self)
 {
 mrb_value str;
@@ -902,6 +929,9 @@ void mrb_mruby_yabm_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, yabm, "udpbind", mrb_yabm_udpbind, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, yabm, "udprecv", mrb_yabm_udprecv, MRB_ARGS_NONE());
   mrb_define_method(mrb, yabm, "udpsend", mrb_yabm_udpsend, MRB_ARGS_REQ(4));
+  mrb_define_method(mrb, yabm, "httpsvrinit", mrb_yabm_httpsvrinit, MRB_ARGS_NONE());
+  mrb_define_method(mrb, yabm, "httpsvrbind", mrb_yabm_httpsvrbind, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, yabm, "httpsvrsetres", mrb_yabm_httpsvrsetres, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, yabm, "http", mrb_yabm_http, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, yabm, "https", mrb_yabm_https, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, yabm, "lookup", mrb_yabm_lookup, MRB_ARGS_REQ(1));
